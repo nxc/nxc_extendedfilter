@@ -1,0 +1,5 @@
+[nxc_extendedfilter]
+ExtensionName=nxc_extendedfilter
+ClassName=nxcExtendedAttributeFilter
+MethodName=getFilters
+FileName=classes/nxcextendedattributefilter.php
