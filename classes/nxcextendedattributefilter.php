@@ -191,7 +191,7 @@ class nxcExtendedAttributeFilter {
 
 			$joins = 'lat.contentobject_id = ezcontentobject.id AND lat.version = ezcontentobject.current_version AND lat.contentclassattribute_id = ' . $latAttributeID . ' AND ';
 			$joins .= 'lon.contentobject_id = ezcontentobject.id AND lon.version = ezcontentobject.current_version AND lon.contentclassattribute_id = ' . $lngAttributeID . ' AND ';
-			$joins .= '( ( ACOS( SIN( lat.data_float * PI() / 180 ) * SIN( ' . $params['lat'] . ' * PI() / 180 ) + COS( lat.data_float * PI() / 180 ) * COS( ' . $params['lat'] . ' * PI() / 180 ) * COS( ( lon.data_float - ' . $params['lon'] . ' ) * PI() / 180 ) ) * 180 / PI() ) * 60 * 1.1515 ) / 1.609344 < ' . $params['distance'] . ' AND ';
+			$joins .= '( ( ACOS( SIN( lat.data_float * PI() / 180 ) * SIN( ' . $params['lat'] . ' * PI() / 180 ) + COS( lat.data_float * PI() / 180 ) * COS( ' . $params['lat'] . ' * PI() / 180 ) * COS( ( lon.data_float - ' . $params['lon'] . ' ) * PI() / 180 ) ) * 180 / PI() ) * 60 * 1.1515 ) * 1.609344 < ' . $params['distance'] . ' AND ';
 
 			$return = array(
 				'tables'  => $tables,
