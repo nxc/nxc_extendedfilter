@@ -270,5 +270,38 @@ class nxcExtendedAttributeFilter {
 			'columns' => ', RAND() as random_order'
 		);
 	}
+
+	public static function childNodesCount( $params ) {
+		if( isset( $params['class_identifiers'] ) === false ) {
+			return array();
+		}
+
+		$childClassIDs = array();
+		$childClasses  = (array) $params['class_identifiers'];
+		foreach( $childClasses as $identifier ) {
+			$class = eZContentClass::fetchByIdentifier( $identifier );
+			if( $class instanceof eZContentClass ) {
+				$childClassIDs[] = $class->attribute( 'id' );
+			}
+		}
+		$childClassIDs = array_unique( $childClassIDs );
+		if( count( $childClassIDs ) === 0 ) {
+			return array();
+		}
+
+		if( isset( $params['sort_field'] ) === false ) {
+			$params['sort_field'] = 'child_nodes_count_' . $params['index'];
+		}
+
+		return array(
+			'columns' => ', ( SELECT COUNT(*) FROM ezcontentobject_tree cnc_nt' . $params['index']
+				. ' LEFT JOIN ezcontentobject cnc_co' . $params['index']
+				. ' ON ( cnc_co' . $params['index'] . '.id = cnc_nt' . $params['index'] . '.contentobject_id'
+				. ' AND cnc_co' . $params['index'] . '.current_version = cnc_nt' . $params['index'] . '.contentobject_version )'
+				. ' WHERE cnc_nt' . $params['index'] . '.path_string LIKE CONCAT( \'%/\', ezcontentobject_tree.node_id , \'/%\' )'
+				. ' AND cnc_co' . $params['index'] . '.contentclass_id IN (' . implode( ', ', $childClassIDs ) . ') )'
+				. ' AS ' . $params['sort_field']
+		);
+	}
 }
 ?>
