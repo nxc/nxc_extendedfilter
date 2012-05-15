@@ -303,5 +303,50 @@ class nxcExtendedAttributeFilter {
 				. ' AS ' . $params['sort_field']
 		);
 	}
+
+	public static function sortByAttributesGroup( $params ) {
+		if( isset( $params['attributes'] ) === false ) {
+			return array();
+		}
+
+		$possibleSortKeys = array( 'int', 'string' );
+		$sortKey = isset( $params['sort_key'] ) ? $params['sort_key'] : $possibleSortKeys[0];
+		if( in_array( $sortKey, $possibleSortKeys ) === false ) {
+			$sortKey = $possibleSortKeys[0];
+		}
+
+		$sortField = isset( $params['sort_field'] )
+			? $params['sort_field']
+			: 'attrs_group_sort_field_' . $params['index'];
+
+		$classAttributeIDs = array();
+		foreach( $params['attributes'] as $attributeID ) {
+			if( is_numeric( $attributeID ) === false ) {
+				$attributeID = eZContentClassAttribute::classAttributeIDByIdentifier( $attributeID );
+			}
+			if( $attributeID !== false ) {
+				$classAttributeIDs[] = $attributeID;
+			}
+		}
+		$classAttributeIDs = array_unique( $classAttributeIDs );
+
+		if( count( $classAttributeIDs ) === 0 ) {
+			return array();
+		}
+
+		$tables  = ', ezcontentobject_attribute as attrs_group_sort' . $params['index'];
+		$columns = ', attrs_group_sort' . $params['index'] . '.sort_key_'
+			. $sortKey . ' AS ' . $sortField;
+		$joins = 'attrs_group_sort' . $params['index'] . '.contentobject_id = ezcontentobject.id AND '
+			. 'attrs_group_sort' . $params['index'] . '.version = ezcontentobject.current_version AND '
+			. 'attrs_group_sort' . $params['index'] . '.contentclassattribute_id IN ('
+			. implode( ', ', $classAttributeIDs ) . ') AND ';
+
+		return array(
+			'tables'  => $tables,
+			'joins'   => $joins,
+			'columns' => $columns
+		);
+	}
 }
 ?>
