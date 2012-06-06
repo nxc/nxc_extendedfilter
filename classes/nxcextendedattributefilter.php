@@ -187,15 +187,35 @@ class nxcExtendedAttributeFilter {
 			$latAttributeID !== false
 			&& $lngAttributeID !== false
 		) {
-			$tables = ', ezcontentobject_attribute as lat, ezcontentobject_attribute as lon';
+			$params['lat'] = (float) $params['lat'];
+			$params['lon'] = (float) $params['lon'];
+			$latTable = 'lat' . $params['index'];
+			$lngTable = 'lng' . $params['index'];
+			$tables = ', ezcontentobject_attribute as ' . $latTable .
+				', ezcontentobject_attribute as ' . $lngTable;
 
-			$joins = 'lat.contentobject_id = ezcontentobject.id AND lat.version = ezcontentobject.current_version AND lat.contentclassattribute_id = ' . $latAttributeID . ' AND ';
-			$joins .= 'lon.contentobject_id = ezcontentobject.id AND lon.version = ezcontentobject.current_version AND lon.contentclassattribute_id = ' . $lngAttributeID . ' AND ';
-			$joins .= '( ( ACOS( SIN( lat.data_float * PI() / 180 ) * SIN( ' . $params['lat'] . ' * PI() / 180 ) + COS( lat.data_float * PI() / 180 ) * COS( ' . $params['lat'] . ' * PI() / 180 ) * COS( ( lon.data_float - ' . $params['lon'] . ' ) * PI() / 180 ) ) * 180 / PI() ) * 60 * 1.1515 ) * 1.609344 < ' . $params['distance'] . ' AND ';
+			$distanceField = '( ( ACOS( SIN( ' . $latTable . '.data_float * PI() / 180 ) * SIN( ' . $params['lat'] . ' * PI() / 180 ) + COS( ' . $latTable . '.data_float * PI() / 180 ) * COS( ' . $params['lat'] . ' * PI() / 180 ) * COS( ( ' . $lngTable . '.data_float - ' . $params['lon'] . ' ) * PI() / 180 ) ) * 180 / PI() ) * 60 * 1.1515 ) * 1.609344';
+
+			$joins = $latTable .'.contentobject_id = ezcontentobject.id
+				AND ' . $latTable . '.version = ezcontentobject.current_version
+				AND ' . $latTable . '.contentclassattribute_id = ' . $latAttributeID . '
+				AND ' . $lngTable . '.contentobject_id = ezcontentobject.id
+				AND ' . $lngTable . '.version = ezcontentobject.current_version
+				AND ' . $lngTable . '.contentclassattribute_id = ' . $lngAttributeID . '
+				AND ';
+			if( isset( $params['distance'] ) ) {
+				$joins .= $distanceField . ' < ' . $params['distance'] . ' AND ';
+			}
+
+			$columns = false;
+			if( isset( $params['sort_field'] ) ) {
+				$columns = ', ' . $distanceField . ' AS ' . $params['sort_field'];
+			}
 
 			$return = array(
 				'tables'  => $tables,
-				'joins'   => $joins
+				'joins'   => $joins,
+				'columns' => $columns
 			);
 		}
 
