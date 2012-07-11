@@ -194,7 +194,13 @@ class nxcExtendedAttributeFilter {
 			$tables = ', ezcontentobject_attribute as ' . $latTable .
 				', ezcontentobject_attribute as ' . $lngTable;
 
-			$distanceField = '( ( ACOS( SIN( ' . $latTable . '.data_float * PI() / 180 ) * SIN( ' . $params['lat'] . ' * PI() / 180 ) + COS( ' . $latTable . '.data_float * PI() / 180 ) * COS( ' . $params['lat'] . ' * PI() / 180 ) * COS( ( ' . $lngTable . '.data_float - ' . $params['lon'] . ' ) * PI() / 180 ) ) * 180 / PI() ) * 60 * 1.1515 ) * 1.609344';
+			$distanceField = '( ( ACOS( SIN( ' . $latTable . '.data_float * PI() / 180 ) * SIN( ' . $params['lat'] . ' * PI() / 180 ) + COS( ' . $latTable . '.data_float * PI() / 180 ) * COS( ' . $params['lat'] . ' * PI() / 180 ) * COS( ( ' . $lngTable . '.data_float - ' . $params['lon'] . ' ) * PI() / 180 ) ) * 180 / PI() ) * 60 * 1.1515 )';
+			if(
+				isset( $params['distance_measure'] ) === false
+				|| $params['distance_measure'] == 'km'
+			) {
+				$distanceField .= ' * 1.609344';
+			}
 
 			$joins = $latTable .'.contentobject_id = ezcontentobject.id
 				AND ' . $latTable . '.version = ezcontentobject.current_version
