@@ -86,11 +86,18 @@ class nxcExtendedAttributeFilter {
 		$joins = ' ezcontentobject_tree.contentobject_id = ' . $table . '.from_contentobject_id AND ezcontentobject_tree.contentobject_version = ' . $table . '.from_contentobject_version AND ';
 
 		if( isset( $params['attribute'] ) ) {
-			$attributeID = $params['attribute'];
-			if( is_numeric( $attributeID ) === false ) {
-				$attributeID = eZContentClassAttribute::classAttributeIDByIdentifier( $params['attribute'] );
+			$attributes   = (array) $params['attribute'];
+			$attributeIDs = array();
+			foreach( $attributes as $attribute ) {
+				$attributeID = $attribute;
+				if( is_numeric( $attributeID ) === false ) {
+					$attributeID = eZContentClassAttribute::classAttributeIDByIdentifier( $attributeID );
+				}
+				$attributeIDs[] = $attributeID;
 			}
-			$joins .= '' . $table . '.contentclassattribute_id = ' . $attributeID;
+			$attributeIDs = array_unique( $attributeIDs );
+
+			$joins .= '' . $table . '.contentclassattribute_id IN (' . implode( ', ', $attributeIDs ) . ') ';
 		}
 
 		if( isset( $params['object_ids'] ) ) {
