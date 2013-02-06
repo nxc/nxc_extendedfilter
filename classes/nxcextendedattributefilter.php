@@ -121,6 +121,8 @@ class nxcExtendedAttributeFilter {
 			} else {
 				$joins .= ' AND ' . $table . '.to_contentobject_id ' . $excludeString . '=' . (int) $objectIDs . ' AND ';
 			}
+		} else {
+			return array();
 		}
 
 		$return = array(
