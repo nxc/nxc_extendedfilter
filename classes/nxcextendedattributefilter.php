@@ -201,7 +201,12 @@ class nxcExtendedAttributeFilter {
 			$tables = ', ezcontentobject_attribute as ' . $latTable .
 				', ezcontentobject_attribute as ' . $lngTable;
 
-			$distanceField = '( ( ACOS( SIN( ' . $latTable . '.data_float * PI() / 180 ) * SIN( ' . $params['lat'] . ' * PI() / 180 ) + COS( ' . $latTable . '.data_float * PI() / 180 ) * COS( ' . $params['lat'] . ' * PI() / 180 ) * COS( ( ' . $lngTable . '.data_float - ' . $params['lon'] . ' ) * PI() / 180 ) ) * 180 / PI() ) * 60 * 1.1515 )';
+			$locationField = 'data_float';
+			if( isset( $params['location_db_field'] ) ) {
+				$locationField = $params['location_db_field'];
+			}
+
+			$distanceField = '( ( ACOS( SIN( ' . $latTable . '.' . $locationField . ' * PI() / 180 ) * SIN( ' . $params['lat'] . ' * PI() / 180 ) + COS( ' . $latTable . '.' . $locationField . ' * PI() / 180 ) * COS( ' . $params['lat'] . ' * PI() / 180 ) * COS( ( ' . $lngTable . '.' . $locationField . ' - ' . $params['lon'] . ' ) * PI() / 180 ) ) * 180 / PI() ) * 60 * 1.1515 )';
 			if(
 				isset( $params['distance_measure'] ) === false
 				|| $params['distance_measure'] == 'km'
