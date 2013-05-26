@@ -388,5 +388,41 @@ class nxcExtendedAttributeFilter {
 			'columns' => $columns
 		);
 	}
+
+	public static function floatComparison( $params ) {
+		if(
+			isset( $params['attribute'] ) === false
+			|| isset( $params['value'] ) === false
+		) {
+			return array();
+		}
+
+		$attributeID = $params['attribute'];
+		$value       = $params['value'];
+		$comparison  = isset( $params['comparison'] ) ? $params['comparison'] : '=';
+		if( is_numeric( $attributeID ) === false ) {
+			$attributeID = eZContentClassAttribute::classAttributeIDByIdentifier( $attributeID );
+		}
+
+		if( $attributeID === false ) {
+			return array();
+		}
+		if( in_array( $comparison, array( '>', '<', '>=', '<=', '=', '!=' ) ) === false ) {
+			return array();
+		}
+
+		$db           = eZDB::instance();
+		$attributeVar = 'fc' . $params['index'];
+		$tables       = ', ezcontentobject_attribute as ' . $attributeVar;
+		$joins        = $attributeVar . '.contentobject_id = ezcontentobject.id AND ' .
+			$attributeVar . '.version = ezcontentobject.current_version AND ' .
+			$attributeVar . '.contentclassattribute_id = ' . $attributeID . ' AND ' .
+			$attributeVar . '.data_float ' . $comparison . ' ' . $db->escapeString( $value ) . ' AND ';
+
+		return array(
+			'tables'  => $tables,
+			'joins'   => $joins
+		);
+	}
 }
 ?>
