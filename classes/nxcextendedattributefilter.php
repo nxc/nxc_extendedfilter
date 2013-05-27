@@ -424,5 +424,33 @@ class nxcExtendedAttributeFilter {
 			'joins'   => $joins
 		);
 	}
+
+	public static function sortingByFloatAttribute( $params ) {
+		if( isset( $params['attribute'] ) === false ) {
+			return array();
+		}
+
+		$attributeID = $params['attribute'];
+		$sortField   = isset( $params['sort_field'] ) ? $params['sort_field'] : 'float_sort_field';
+		if( is_numeric( $attributeID ) === false ) {
+			$attributeID = eZContentClassAttribute::classAttributeIDByIdentifier( $attributeID );
+		}
+		if( $attributeID === false ) {
+			return array();
+		}
+
+		$db           = eZDB::instance();
+		$attributeVar = 'fas' . $params['index'];
+		$tables       = ', ezcontentobject_attribute as ' . $attributeVar;
+		$joins        = $attributeVar . '.contentobject_id = ezcontentobject.id AND ' .
+			$attributeVar . '.version = ezcontentobject.current_version AND ' .
+			$attributeVar . '.contentclassattribute_id = ' . $attributeID . ' AND ';
+
+		return array(
+			'tables'  => $tables,
+			'joins'   => $joins,
+			'columns' => ', ' . $attributeVar . '.data_float as ' . $sortField
+		);
+	}
 }
 ?>
