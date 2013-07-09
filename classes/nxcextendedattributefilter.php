@@ -452,5 +452,19 @@ class nxcExtendedAttributeFilter {
 			'columns' => ', ' . $attributeVar . '.data_float as ' . $sortField
 		);
 	}
+
+	public static function multipleParentNodeIDs( $params ) {
+		$joins = array();
+		foreach( (array) $params['parent_node_ids'] as $parentNodeID ) {
+			$joins[] = 'ezcontentobject_tree.path_string LIKE "%/' . $parentNodeID . '/%"';
+		}
+
+		$return = array(
+			'joins' => count( $joins ) > 0
+				? '( ' . implode( ' OR ', $joins ) . ') AND '
+				: null
+		);
+		return $return;
+	}
 }
 ?>
