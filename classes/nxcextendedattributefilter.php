@@ -143,15 +143,26 @@ class nxcExtendedAttributeFilter {
 			if( is_numeric( $attributeID ) === false ) {
 				$attributeID = eZContentClassAttribute::classAttributeIDByIdentifier( $params['attribute'] );
 			}
-			$joins .= '' . $table . '.contentclassattribute_id = ' . $attributeID;
+			$joins .= '' . $table . '.contentclassattribute_id = ' . $attributeID . ' AND ';
 		}
 
 		if( isset( $params['object_id'] ) ) {
 			$object = eZContentObject::fetch( $params['object_id'] );
 			if( $object instanceof eZContentObject ) {
 				$joins .=
-					' AND ' . $table . '.from_contentobject_id = ' . (int) $object->attribute( 'id' )
+					$table . '.from_contentobject_id = ' . (int) $object->attribute( 'id' )
 					. ' AND ' . $table . '.from_contentobject_version = ' . (int) $object->attribute( 'current_version' ) . ' AND ';
+			}
+		} elseif( isset( $params['object_ids'] ) ) {
+			$objectIDs = array();
+			foreach( (array) $params['object_ids'] as $key => $id ) {
+				if( (int) $id > 0 ) {
+					$objectIDs[] = (int) $id;
+				}
+			}
+
+			if( count( $objectIDs ) > 0 ) {
+				$joins .= $table . '.from_contentobject_id IN (' . implode( ', ', $objectIDs ) . ') AND ';
 			}
 		}
 
