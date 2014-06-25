@@ -450,7 +450,6 @@ class nxcExtendedAttributeFilter {
 			return array();
 		}
 
-		$db           = eZDB::instance();
 		$attributeVar = 'fas' . $params['index'];
 		$tables       = ', ezcontentobject_attribute as ' . $attributeVar;
 		$joins        = $attributeVar . '.contentobject_id = ezcontentobject.id AND ' .
@@ -477,5 +476,39 @@ class nxcExtendedAttributeFilter {
 		);
 		return $return;
 	}
+
+	/**
+	 * Sorting by name of related object
+	 * @param array $params keys: attribute, [sort_field] (default: relation_sort_field), index
+	 * @return array
+	 */
+	public static function sortingByRelatedObjectName($params) {
+		if (isset($params['attribute']) === false) {
+			return array();
+		}
+
+		$attributeID = $params['attribute'];
+		$sortField   = isset($params['sort_field']) ? $params['sort_field'] : 'relation_sort_field';
+		if (is_numeric($attributeID) === false) {
+			$attributeID = eZContentClassAttribute::classAttributeIDByIdentifier($attributeID);
+		}
+		if ($attributeID === false) {
+			return array();
+		}
+
+		$attributeVar  = 'roa' . $params['index'];
+		$objectNameVar = 'ron' . $params['index'];
+		$tables		= ', ezcontentobject_attribute as ' . $attributeVar . ', ezcontentobject_name as ' . $objectNameVar;
+		$joins		 = $attributeVar . '.contentobject_id = ezcontentobject.id AND ' .
+			$attributeVar . '.version = ezcontentobject.current_version AND ' .
+			$attributeVar . '.contentclassattribute_id = ' . $attributeID . ' AND ' .
+			$objectNameVar . '.contentobject_id = ' . $attributeVar . '.data_int AND'
+		;
+
+		return array(
+			'tables'  => $tables,
+			'joins'   => $joins,
+			'columns' => ', ' . $objectNameVar . '.name as ' . $sortField
+		);
+	}
 }
-?>
