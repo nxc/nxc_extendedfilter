@@ -80,8 +80,6 @@ class nxcExtendedAttributeFilter {
 	}
 
 	public static function relatedObjectList( $params ) {
-		$db = eZDB::instance();
-
 		$table = 'ol' . $params['index'];
 		$joins = ' ezcontentobject_tree.contentobject_id = ' . $table . '.from_contentobject_id AND ezcontentobject_tree.contentobject_version = ' . $table . '.from_contentobject_version AND ';
 
@@ -133,8 +131,6 @@ class nxcExtendedAttributeFilter {
 	}
 
 	public static function reverseRelatedObjectList( $params ) {
-		$db = eZDB::instance();
-
 		$table = 'rol' . $params['index'];
 		$joins = ' ezcontentobject_tree.contentobject_id = ' . $table . '.to_contentobject_id AND ';
 
