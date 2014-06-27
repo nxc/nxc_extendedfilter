@@ -80,8 +80,6 @@ class nxcExtendedAttributeFilter {
 	}
 
 	public static function relatedObjectList( $params ) {
-		$db = eZDB::instance();
-
 		$table = 'ol' . $params['index'];
 		$joins = ' ezcontentobject_tree.contentobject_id = ' . $table . '.from_contentobject_id AND ezcontentobject_tree.contentobject_version = ' . $table . '.from_contentobject_version AND ';
 
@@ -133,8 +131,6 @@ class nxcExtendedAttributeFilter {
 	}
 
 	public static function reverseRelatedObjectList( $params ) {
-		$db = eZDB::instance();
-
 		$table = 'rol' . $params['index'];
 		$joins = ' ezcontentobject_tree.contentobject_id = ' . $table . '.to_contentobject_id AND ';
 
@@ -498,11 +494,16 @@ class nxcExtendedAttributeFilter {
 
 		$attributeVar  = 'roa' . $params['index'];
 		$objectNameVar = 'ron' . $params['index'];
-		$tables		= ', ezcontentobject_attribute as ' . $attributeVar . ', ezcontentobject_name as ' . $objectNameVar;
-		$joins		 = $attributeVar . '.contentobject_id = ezcontentobject.id AND ' .
-			$attributeVar . '.version = ezcontentobject.current_version AND ' .
-			$attributeVar . '.contentclassattribute_id = ' . $attributeID . ' AND ' .
-			$objectNameVar . '.contentobject_id = ' . $attributeVar . '.data_int AND'
+		$relObjectVar  = 'ro' . $params['index'];
+		$tables        = ', ezcontentobject_attribute as ' . $attributeVar . ', ezcontentobject_name as ' . $objectNameVar .', ezcontentobject as ' . $relObjectVar;
+		$joins         = $attributeVar  . '.contentobject_id = ezcontentobject.id AND ' .
+			$attributeVar  . '.version = ezcontentobject.current_version AND ' .
+			$attributeVar  . '.contentclassattribute_id = ' . $attributeID . ' AND ' .
+			$objectNameVar . '.contentobject_id = ' . $attributeVar . '.data_int AND ' .
+			$relObjectVar  . '.id = ' . $attributeVar . '.data_int AND ' .
+			$objectNameVar . '.content_version = ' . $relObjectVar . '.current_version AND ' .
+			eZContentLanguage::sqlFilter($attributeVar, 'ezcontentobject') . ' AND ' .
+			eZContentLanguage::sqlFilter($objectNameVar, 'ezcontentobject') . ' AND '
 		;
 
 		return array(
