@@ -502,7 +502,9 @@ class nxcExtendedAttributeFilter {
 		$joins		 = $attributeVar . '.contentobject_id = ezcontentobject.id AND ' .
 			$attributeVar . '.version = ezcontentobject.current_version AND ' .
 			$attributeVar . '.contentclassattribute_id = ' . $attributeID . ' AND ' .
-			$objectNameVar . '.contentobject_id = ' . $attributeVar . '.data_int AND'
+			$objectNameVar . '.contentobject_id = ' . $attributeVar . '.data_int AND ' .
+			eZContentLanguage::sqlFilter($attributeVar, 'ezcontentobject') . ' AND ' .
+			eZContentLanguage::sqlFilter($objectNameVar, 'ezcontentobject') . ' AND '
 		;
 
 		return array(
