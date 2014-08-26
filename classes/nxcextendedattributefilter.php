@@ -525,21 +525,23 @@ class nxcExtendedAttributeFilter {
 
 		$db = eZDB::instance();
 		$sqlKeyword = $db->escapeString( $keyword );
-		$sqlJoins .= 'coa_related_by_keyword.contentobject_id = ezcontentobject.id AND '
-			. 'coa_related_by_keyword.version = ezcontentobject.current_version AND ';
-		$sqlJoins .= eZContentLanguage::sqlFilter( 'coa_related_by_keyword', 'ezcontentobject' ) . ' AND ';
+		$sqlJoins .= 'coa_related_by_keyword' . $params['index'] . '.contentobject_id = ezcontentobject.id AND '
+			. 'coa_related_by_keyword' . $params['index'] . '.version = ezcontentobject.current_version AND ';
+		$sqlJoins .= eZContentLanguage::sqlFilter( 'coa_related_by_keyword' . $params['index'], 'ezcontentobject' ) . ' AND ';
 
 		if( $attribute !== false ) {
 			$attributeID = eZContentClassAttribute::classAttributeIDByIdentifier( $attribute );
 			if( $attributeID ) {
-				$sqlJoins .= 'coa_related_by_keyword.contentclassattribute_id = ' . $attributeID . ' AND ';
+				$sqlJoins .= 'coa_related_by_keyword' . $params['index'] . '.contentclassattribute_id = ' . $attributeID . ' AND ';
 			}
 		}
 
-		$sqlJoins .= 'coa_related_by_keyword.id = ezkeyword_attribute_link.objectattribute_id AND '
-			. 'ezkeyword_attribute_link.keyword_id = ezkeyword.id AND ';
-		$sqlJoins .= "ezkeyword.keyword = '" . $sqlKeyword . "' AND";
-		$sqlTables .= ", ezcontentobject_attribute coa_related_by_keyword, ezkeyword_attribute_link, ezkeyword";
+		$sqlJoins .= 'coa_related_by_keyword' . $params['index'] . '.id = kal_related_by_keyword' . $params['index'] . '.objectattribute_id AND '
+			. 'kal_related_by_keyword' . $params['index'] . '.keyword_id = k_related_by_keyword' . $params['index'] . '.id AND ';
+		$sqlJoins .= 'k_related_by_keyword' . $params['index'] . ".keyword = '" . $sqlKeyword . "' AND";
+		$sqlTables .= ', ezcontentobject_attribute coa_related_by_keyword' . $params['index'] . ', '
+			. 'ezkeyword_attribute_link kal_related_by_keyword' . $params['index'] . ', '
+			. 'ezkeyword k_related_by_keyword' . $params['index'];
 
 		return array( 'tables' => $sqlTables, 'joins'  => $sqlJoins );
 	}
