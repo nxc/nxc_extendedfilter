@@ -512,4 +512,26 @@ class nxcExtendedAttributeFilter {
 			'columns' => ', ' . $objectNameVar . '.name as ' . $sortField
 		);
 	}
+
+	public static function keyword($params) {
+		$sqlTables = '';
+		$sqlJoins = '';
+		$keyword = isset( $params['keyword'] ) ? $params['keyword'] : false;
+
+		if ($keyword === false && is_string( $keyword ) && $keyword != '') {
+			return array();
+		}
+
+		$db = eZDB::instance();
+		$sqlKeyword = $db->escapeString( $keyword );
+		$sqlJoins .= 'coa_related_by_keyword.contentobject_id = ezcontentobject.id AND '
+			. 'coa_related_by_keyword.version = ezcontentobject.current_version AND ';
+		$sqlJoins .= eZContentLanguage::sqlFilter( 'coa_related_by_keyword', 'ezcontentobject' ) . ' AND ';
+		$sqlJoins .= 'coa_related_by_keyword.id = ezkeyword_attribute_link.objectattribute_id AND '
+			. 'ezkeyword_attribute_link.keyword_id = ezkeyword.id AND ';
+		$sqlJoins .= "ezkeyword.keyword = '" . $sqlKeyword . "' AND";
+		$sqlTables .= ", ezcontentobject_attribute coa_related_by_keyword, ezkeyword_attribute_link, ezkeyword";
+
+		return array( 'tables' => $sqlTables, 'joins'  => $sqlJoins );
+	}
 }
