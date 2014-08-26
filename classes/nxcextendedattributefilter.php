@@ -517,8 +517,9 @@ class nxcExtendedAttributeFilter {
 		$sqlTables = '';
 		$sqlJoins = '';
 		$keyword = isset( $params['keyword'] ) ? $params['keyword'] : false;
+		$attribute = isset( $params['attribute'] ) ? $params['attribute'] : false;
 
-		if ($keyword === false && is_string( $keyword ) && $keyword != '') {
+		if( $keyword === false && is_string( $keyword ) && $keyword != '' ) {
 			return array();
 		}
 
@@ -527,6 +528,14 @@ class nxcExtendedAttributeFilter {
 		$sqlJoins .= 'coa_related_by_keyword.contentobject_id = ezcontentobject.id AND '
 			. 'coa_related_by_keyword.version = ezcontentobject.current_version AND ';
 		$sqlJoins .= eZContentLanguage::sqlFilter( 'coa_related_by_keyword', 'ezcontentobject' ) . ' AND ';
+
+		if( $attribute !== false ) {
+			$attributeID = eZContentClassAttribute::classAttributeIDByIdentifier( $attribute );
+			if( $attributeID ) {
+				$sqlJoins .= 'coa_related_by_keyword.contentclassattribute_id = ' . $attributeID . ' AND ';
+			}
+		}
+
 		$sqlJoins .= 'coa_related_by_keyword.id = ezkeyword_attribute_link.objectattribute_id AND '
 			. 'ezkeyword_attribute_link.keyword_id = ezkeyword.id AND ';
 		$sqlJoins .= "ezkeyword.keyword = '" . $sqlKeyword . "' AND";
